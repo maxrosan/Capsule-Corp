@@ -1,11 +1,12 @@
 
-LIBS = -lm
+LIBS = -lgomp -lm
+FLAGS = -fopenmp -DNUM_THREADS=4
 
 all: capsule.o paralela.o mymath.o
-	gcc -pg $? $(LIBS) -o ep
+	gcc -pg $? $(FLAGS) $(LIBS) -o ep
 
 %.o: %.c
-	gcc -pg -c $^ -o $@
+	gcc -pg $(FLAGS) -c $^ -o $@
 
 clean:
 	rm *.o; rm ep

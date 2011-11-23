@@ -10,12 +10,14 @@
 void tile_init(Tile *t, Capsule *cap, v3d *a, v3d *b, v3d *c, v3d *d, Ring *ring) {
 	v3d vdl, p, q;
 
+#ifdef DEBUG
 	assert(t != NULL);
 	assert(cap != NULL);
 	assert(a != NULL);
 	assert(b != NULL);
 	assert(c != NULL);
 	assert(d != NULL);
+#endif
 
 	t->t_0 = cap->t_0;
 	t->t = t->t_0;
@@ -50,9 +52,11 @@ void tile_init(Tile *t, Capsule *cap, v3d *a, v3d *b, v3d *c, v3d *d, Ring *ring
 
 void tile_link(Tile *t, Tile *left, Tile *right) {
 
+#ifdef DEBUG
 	assert(t != NULL);
 	assert(left != NULL);
 	assert(right != NULL);
+#endif
 
 	t->left = left;
 	t->right = right;
@@ -62,9 +66,11 @@ static double _tile_perimenter_temp(Tile *t) {
 	double t1, t2;
 	register double tdl, td;
 
+#ifdef DEBUG
 	assert(t != NULL);
 	assert(t->left != NULL);
 	assert(t->right != NULL);
+#endif
 
 	ring_neighborhood_temp(t->ring, &t1, &t2);
 
@@ -77,9 +83,12 @@ static double _tile_perimenter_temp(Tile *t) {
 }
 
 void tile_calc_temp(Tile *t) {
+
+#ifdef DEBUG
 	assert(t != NULL);
 	assert(t->left != NULL);
 	assert(t->right != NULL);
+#endif
 
 	t->t += 1;
 	if (t->bursted) { // estourou?
@@ -109,7 +118,9 @@ void tile_calc_temp(Tile *t) {
 }
 
 double tile_update_temp(Tile *t) {
+#ifdef DEBUG
 	assert(t != NULL);
+#endif
 
 	t->last_temp = t->new_temp;
 	return t->last_temp;
@@ -118,8 +129,10 @@ double tile_update_temp(Tile *t) {
 // BEGIN [RING]
 
 unsigned int _ring_n_tiles(Ring *ring, double l) {
+#ifdef DEBUG
 	assert(ring != NULL);
 	assert(ring->capsule != NULL);
+#endif
 	
 	return ((unsigned int)
 	 floor((2. * MM_PI * sqrt(l / ring->capsule->a)) / ring->capsule->d));
@@ -138,8 +151,10 @@ void ring_init(Ring *ring, Capsule *cap, double l, double L) {
 	v3d a, b, c, d;
 	unsigned int next, prev;
 
+#ifdef DEBUG
 	assert(ring != NULL);
 	assert(cap != NULL);
+#endif
 
 	// número de pastilhas
 
@@ -203,9 +218,10 @@ void ring_init(Ring *ring, Capsule *cap, double l, double L) {
 void ring_calc_temp(Ring *ring) {
 	unsigned int i;
 
+#ifdef DEBUG
 	assert(ring != NULL);
+#endif
 
-	//XXX: paralelizar aqui
 	for (i = 0; i < ring->n_tiles; i++) {
 		tile_calc_temp(&ring->tiles[i]);
 	}
@@ -216,7 +232,12 @@ void ring_update_temp(Ring *ring) {
 	double s;
 	unsigned int i;	
 
+#ifdef DEBUG
+	assert(ring != NULL);
+#endif
+
 	s = 0.;
+
 	for (i = 0; i < ring->n_tiles; i++) {
 		s += tile_update_temp(&ring->tiles[i]);
 	}
@@ -225,10 +246,13 @@ void ring_update_temp(Ring *ring) {
 }
 
 void ring_neighborhood_temp(Ring *ring, double *t1, double *t2) {
+
+#ifdef DEBUG
 	assert(ring != NULL);
 	assert(t1 != NULL && t2 != NULL);
 	assert(ring->next_ring != NULL);
 	assert(ring->prev_ring != NULL);
+#endif
 
 	*t1 = ring->next_ring->temp;
 	*t2 = ring->prev_ring->temp;
@@ -237,7 +261,9 @@ void ring_neighborhood_temp(Ring *ring, double *t1, double *t2) {
 void ring_print(Ring *ring) {
 	unsigned int i;
 
+#ifdef DEBUG
 	assert(ring != NULL);
+#endif
 
 	printf("[nº of tiles = %d] ", ring->n_tiles);	
 
@@ -254,8 +280,10 @@ void ring_print(Ring *ring) {
 
 void cover_init(Cover *c, Capsule *capsule) {
 
+#ifdef DEBUG
 	assert(c != NULL);
 	assert(capsule != NULL);
+#endif
 
 	c->ring.capsule = capsule;
 	v3d_set(&c->normal,
@@ -270,8 +298,10 @@ void cover_init(Cover *c, Capsule *capsule) {
 
 void cover_calc_temp(Cover *c) {
 	
+#ifdef DEBUG
 	assert(c != NULL);
 	assert(c->ring.next_ring != NULL);
+#endif
 
 	c->t += 1.;
 	if (c->bursted) { // estourou?
@@ -302,13 +332,19 @@ void cover_calc_temp(Cover *c) {
 
 // FIXME: temp não é atualizado
 double cover_update_temp(Cover *c) {
+
+#ifdef DEBUG
 	assert(c != NULL);
+#endif
 
 	return (c->ring.temp = c->last_temp = c->new_temp);
 }
 
 void cover_print(Cover *c) {
+
+#ifdef DEBUG
 	assert(c != NULL);
+#endif
 
 	if (c->bursted) {
 		printf("[bursted]");
@@ -326,8 +362,10 @@ void mesh_init(Mesh *m, Capsule *cap) {
 	Ring *prev_ring;
 	unsigned int i;
 
+#ifdef DEBUG
 	assert(m != NULL);
 	assert(cap != NULL);
+#endif
 	
 	tmp = 3 * (cap->d / MM_PI);
 	L = cap->a * ( tmp * tmp );
@@ -369,6 +407,10 @@ void mesh_init(Mesh *m, Capsule *cap) {
 void mesh_print(Mesh *m) {
 	unsigned int i;
 
+#ifdef DEBUG
+	assert(m != NULL);
+#endif
+
 	cover_print(&m->cover);
 	printf("number of rings: %u\n", m->n_rings);
 	
@@ -381,11 +423,19 @@ void mesh_print(Mesh *m) {
 void mesh_step(Mesh *m) {
 	unsigned int i;
 	
+#ifdef DEBUG
+	assert(m != NULL);
+#endif
+
+	#pragma omp parallel for default(none) \
+	 private(i) shared(m) num_threads(NUM_THREADS)
 	for (i = 0; i < m->n_rings; i++) {
 		ring_calc_temp(&m->rings[i]);
 	}
 	cover_calc_temp(&m->cover);
 
+	#pragma omp parallel for default(none) \
+	 private(i) shared(m) num_threads(NUM_THREADS)
 	for (i = 0; i < m->n_rings; i++) {
 		ring_update_temp(&m->rings[i]);
 	}
@@ -396,7 +446,9 @@ void mesh_step(Mesh *m) {
 
 void capsule_print_params(Capsule *c) {
 
+#ifdef DEBUG
 	assert(c != NULL);
+#endif
 
 	printf("Parâmetros da cápsula:\n");
 
@@ -426,23 +478,30 @@ void capsule_print_params(Capsule *c) {
 
 void capsule_init(Capsule *capsule) {
 	
-	double alfa, beta, x_linha, y_linha, z_linha;
+	double alfa, beta, x_linha, y_linha, z_linha, cos_alfa,
+	 sin_alfa, sin_beta, cos_beta;
+
+#ifdef DEBUG
+	assert(capsule != NULL);
+#endif
 
 	// rotacao em relacao ao eixo z (a fim de zerar y)
 	alfa = (capsule->pos.x == 0)
 		? M_PI / 2.0
 		: (-1) * atan( capsule->pos.y / capsule->pos.x );
 
-	// rotação do vetor velocidade
-	x_linha = capsule->vel.x * cos(alfa) - capsule->vel.y * sin(alfa);
-	y_linha = capsule->vel.x * sin(alfa) + capsule->vel.y * cos(alfa);
+	sin_alfa = sin(alfa);
+	cos_alfa = cos(alfa);
+
+	x_linha = capsule->vel.x * cos_alfa - capsule->vel.y * sin_alfa;
+	y_linha = capsule->vel.x * sin_alfa + capsule->vel.y * cos_alfa;
 
 	capsule->vel.x = x_linha;
 	capsule->vel.y = y_linha;
 	
 	// rotação do vetor posicao
-	x_linha = capsule->pos.x * cos(alfa) - capsule->pos.y * sin(alfa);
-	y_linha = capsule->pos.x * sin(alfa) + capsule->pos.y * cos(alfa);
+	x_linha = capsule->pos.x * cos_alfa - capsule->pos.y * sin_alfa;
+	y_linha = capsule->pos.x * sin_alfa + capsule->pos.y * cos_alfa;
 
 	capsule->pos.x = x_linha;
 	capsule->pos.y = y_linha;
@@ -452,16 +511,19 @@ void capsule_init(Capsule *capsule) {
 		? M_PI / 2.0
 	 	:(-1) * atan( capsule->pos.x / capsule->pos.z );
 
+	sin_beta = sin(beta);
+	cos_beta = cos(beta);
+
 	// rotação do vetor velocidade
-	x_linha = capsule->vel.z * sin(beta) + capsule->vel.x * cos(beta);
-	z_linha = capsule->vel.z * cos(beta) - capsule->vel.x * sin(beta);	
+	x_linha = capsule->vel.z * sin_beta + capsule->vel.x * cos_beta;
+	z_linha = capsule->vel.z * cos_beta - capsule->vel.x * sin_beta;
 	
 	capsule->vel.x = x_linha;
-	capsule->vel.z = z_linha;	
+	capsule->vel.z = z_linha;
 
 	// rotação do vetor posicao
-	x_linha = capsule->pos.z * sin(beta) + capsule->pos.x * cos(beta);
-	z_linha = capsule->pos.z * cos(beta) - capsule->pos.x * sin(beta);	
+	x_linha = capsule->pos.z * sin_beta + capsule->pos.x * cos_beta;
+	z_linha = capsule->pos.z * cos_beta - capsule->pos.x * sin_beta;
 	
 	capsule->pos.x = x_linha;
 	capsule->pos.z = z_linha;
@@ -478,12 +540,20 @@ void capsule_init(Capsule *capsule) {
 void capsule_iterate(Capsule *capsule) {
 	unsigned int i;
 
+#ifdef DEBUG
+	assert(capsule != NULL);
+#endif
+
 	for (i = 0; i < capsule->steps; i++) {
 		mesh_step(&capsule->mesh);
 	}
 }
 
 void capsule_output(Capsule *capsule) {
+#ifdef DEBUG
+	assert(capsule != NULL);
+#endif
+
 	mesh_print(&capsule->mesh);
 }
 

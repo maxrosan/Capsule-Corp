@@ -3,6 +3,7 @@
 #define CAPSULE_H
 
 #include "mymath.h"
+#include <omp.h>
 
 typedef struct STile {
 	double t_0,             // tempo inicial
