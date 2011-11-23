@@ -458,11 +458,10 @@ void capsule_print_params(Capsule *c) {
 	 "alpha = %lf \n" \
 	 "delta = %lf \n" \
 	 "t_0 = %lf \n" \
-	 "t_inicial = %lf \n" \
 	 "theta_crit = %lf \n" \
 	 "theta_0 = %lf \n", 
 	 c->h, c->a, c->d, c->alpha, c->delta,
-	 c->t_0, c->t_inicial, c->theta_crit,
+	 c->t_0, c->theta_crit,
 	 c->theta_0);
 
 	printf("pos = ");
@@ -556,4 +555,3 @@ void capsule_output(Capsule *capsule) {
 
 	mesh_print(&capsule->mesh);
 }
-

@@ -45,7 +45,6 @@ static inline void parse_input() {
 	capsule.alpha = prox_linha(arq);
 	capsule.delta = prox_linha(arq);
 	capsule.t_0 = prox_linha(arq);
-	capsule.t_inicial = prox_linha(arq);
 	capsule.theta_crit = prox_linha(arq);
 	capsule.theta_0 = prox_linha(arq);
 
