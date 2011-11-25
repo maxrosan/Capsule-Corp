@@ -1,13 +1,14 @@
 
 LIBS = -lgomp -lm
 ARCH = native
-FLAGS = -mtune=$(ARCH) -fopenmp -DNUM_THREADS=4
+NUM_CORES = `cat /proc/cpuinfo | grep processor | wc -l`
+FLAGS = -mtune=$(ARCH) -O3 -fopenmp -DNUM_THREADS=$(NUM_CORES) # -pg
 
 all: capsule.o paralela.o mymath.o
-	gcc -pg $? $(FLAGS) $(LIBS) -o ep
+	gcc $? $(FLAGS) $(LIBS) -o ep
 
 %.o: %.c
-	gcc -pg $(FLAGS) -c $^ -o $@
+	gcc $(FLAGS) -c $^ -o $@
 
 clean:
 	rm *.o; rm ep

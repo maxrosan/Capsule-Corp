@@ -589,7 +589,7 @@ void capsule_init(Capsule *capsule) {
 }
 
 void capsule_iterate(Capsule *capsule) {
-	unsigned int i;
+	unsigned long int i;
 
 #ifdef DEBUG
 	assert(capsule != NULL);

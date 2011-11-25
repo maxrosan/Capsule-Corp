@@ -53,7 +53,8 @@ static inline void parse_input() {
 	fscanf(arq, "%lf %lf %lf\n", &x, &y, &z);
 	v3d_set(&capsule.vel, x, y, z);
 
-	capsule.steps = prox_linha(arq);
+	//capsule.steps = prox_linha(arq);
+	fscanf(arq, "%lu", &capsule.steps);
 
 	fclose(arq);
 }
