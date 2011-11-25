@@ -24,9 +24,8 @@ static inline void parse_input() {
     i["a"] = 1.0
     i["d"] = 2.0
     i["alpha"] = 2.0
-    i["delta"] = 1.0
     i["t_0"] = 0.0
-    i["t_inicial"] = 0
+    i["delta"] = 1.0    
     i["theta_crit"] = 1050 #?
     i["theta_0"] = 1000.0
     i["pos"] = (1.0, 1.0, 1.0)
@@ -42,8 +41,8 @@ static inline void parse_input() {
 	capsule.a = prox_linha(arq);
 	capsule.d = prox_linha(arq);
 	capsule.alpha = prox_linha(arq);
-	capsule.delta = prox_linha(arq);
 	capsule.t_0 = prox_linha(arq);
+	capsule.delta = prox_linha(arq);	
 	capsule.theta_crit = prox_linha(arq);
 	capsule.theta_0 = prox_linha(arq);
 
