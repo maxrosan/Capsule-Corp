@@ -38,7 +38,6 @@ static inline void parse_input() {
 
 	arq = fopen("entrada.txt","rt");   /* Arquivo ASCII, para leitura */
 
-
 	capsule.h = prox_linha(arq);
 	capsule.a = prox_linha(arq);
 	capsule.d = prox_linha(arq);

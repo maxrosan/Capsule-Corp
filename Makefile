@@ -1,6 +1,7 @@
 
 LIBS = -lgomp -lm
-FLAGS = -fopenmp -DNUM_THREADS=4
+ARCH = native
+FLAGS = -mtune=$(ARCH) -fopenmp -DNUM_THREADS=4
 
 all: capsule.o paralela.o mymath.o
 	gcc -pg $? $(FLAGS) $(LIBS) -o ep
