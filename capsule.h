@@ -82,6 +82,8 @@ typedef struct SCapsule {
         int qtd_aneis;  // quantidade de anéis
 
 	Mesh mesh;
+
+	FILE *file;
 } Capsule;
 
 //-------------*-----------
@@ -121,6 +123,8 @@ void cover_print(Cover *c);
 
 void mesh_init(Mesh *m, Capsule *cap);
 void mesh_print(Mesh *m);
+double mesh_media_temp(Mesh *m);
+double mesh_media_rejunte(Mesh *m);
 
 // --------------*-------------
 // Cápsula

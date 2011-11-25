@@ -265,14 +265,14 @@ void ring_print(Ring *ring) {
 	assert(ring != NULL);
 #endif
 
-	printf("%d ", ring->n_tiles);	
+	fprintf(ring->capsule->file, "%d ", ring->n_tiles);	
 
 	for (i = 0; i < ring->n_tiles; i++) {
-		printf("%.2lf ",
+		fprintf(ring->capsule->file, "%.2lf ",
 		 ring->tiles[i].last_temp * (ring->tiles[i].bursted?-1:1));
 	}
 
-	printf("\n");
+	fprintf(ring->capsule->file, "\n");
 }
 
 // END [RING]
@@ -346,7 +346,7 @@ void cover_print(Cover *c) {
 	assert(c != NULL);
 #endif
 
-	printf("%.2f\n", c->last_temp * (c->bursted?-1:1));
+	fprintf(c->ring.capsule->file, "%.2f\n", c->last_temp * (c->bursted?-1:1));
 }
 
 // END [COVER]
@@ -407,7 +407,7 @@ void mesh_print(Mesh *m) {
 	assert(m != NULL);
 #endif
 
-	printf("%.2lf %.2lf %.2lf\n", 
+	fprintf(m->cap->file, "%.2lf %.2lf %.2lf\n", 
 	 m->cap->a, m->cap->h, m->cap->d);
 
 	cover_print(&m->cover);
@@ -416,6 +416,8 @@ void mesh_print(Mesh *m) {
 	for (i = 0; i < m->n_rings; i++) {
 		ring_print(&m->rings[i]);
 	}
+
+	printf("%.2lf %.2lf\n", mesh_media_temp(m), mesh_media_rejunte(m));
 }
 
 void mesh_step(Mesh *m) {
@@ -438,6 +440,51 @@ void mesh_step(Mesh *m) {
 		ring_update_temp(&m->rings[i]);
 	}
 	cover_update_temp(&m->cover);
+}
+
+double mesh_media_temp(Mesh *m) {
+	unsigned int i, j, n_tls_not_busted = 0;
+	double sum = 0.;
+
+#ifdef DEBUG
+	assert(m != NULL);
+#endif
+
+	if (!m->cover.bursted) {
+		n_tls_not_busted = 1;
+		sum += m->cover.last_temp;
+	}
+
+	for (i = 0; i < m->n_rings; i++) {
+		for (j = 0; j < m->rings[i].n_tiles; j++) {
+			if (!m->rings[i].tiles[j].bursted) {
+				n_tls_not_busted++;
+				sum += m->rings[i].tiles[j].last_temp;	
+			}
+		}
+	}
+
+	if (n_tls_not_busted > 0) {
+		return sum/((double) n_tls_not_busted);
+	}
+	
+	return 0.;
+
+}
+
+double mesh_media_rejunte(Mesh *m) {
+	unsigned int i;
+	double sum = 0.;
+
+#ifdef DEBUG
+	assert(m != NULL);
+#endif
+
+	for (i = 0; i < m->n_rings; i++) {
+		sum += m->rings[i].temp;
+	}
+
+	return (sum / m->n_rings);
 }
 
 // END [MESH]
@@ -483,6 +530,9 @@ void capsule_init(Capsule *capsule) {
 #ifdef DEBUG
 	assert(capsule != NULL);
 #endif
+
+	capsule->file = fopen("saida.txt", "w+");
+	assert(capsule->file != NULL);
 
 	// rotacao em relacao ao eixo z (a fim de zerar y)
 	alfa = (capsule->pos.x == 0)
@@ -531,6 +581,8 @@ void capsule_init(Capsule *capsule) {
 		capsule->vel.x = -capsule->vel.x;
 		capsule->vel.y = -capsule->vel.y;
 		capsule->vel.z = -capsule->vel.z;
+
+		capsule->pos.z *= -1;
 	}
 
 	mesh_init(&capsule->mesh, capsule);
@@ -554,4 +606,6 @@ void capsule_output(Capsule *capsule) {
 #endif
 
 	mesh_print(&capsule->mesh);
+
+	fclose(capsule->file);
 }
