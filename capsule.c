@@ -265,10 +265,11 @@ void ring_print(Ring *ring) {
 	assert(ring != NULL);
 #endif
 
-	printf("[nº of tiles = %d] ", ring->n_tiles);	
+	printf("%d ", ring->n_tiles);	
 
 	for (i = 0; i < ring->n_tiles; i++) {
-		printf("%.2lf[%d] ", ring->tiles[i].last_temp, ring->tiles[i].bursted);
+		printf("%.2lf ",
+		 ring->tiles[i].last_temp * (ring->tiles[i].bursted?-1:1));
 	}
 
 	printf("\n");
@@ -330,7 +331,6 @@ void cover_calc_temp(Cover *c) {
 	}
 }
 
-// FIXME: temp não é atualizado
 double cover_update_temp(Cover *c) {
 
 #ifdef DEBUG
@@ -346,11 +346,7 @@ void cover_print(Cover *c) {
 	assert(c != NULL);
 #endif
 
-	if (c->bursted) {
-		printf("[bursted]");
-	}
-
-	printf("cover: %.2f\n", c->last_temp);
+	printf("%.2f\n", c->last_temp * (c->bursted?-1:1));
 }
 
 // END [COVER]
@@ -411,12 +407,14 @@ void mesh_print(Mesh *m) {
 	assert(m != NULL);
 #endif
 
+	printf("%.2lf %.2lf %.2lf\n", 
+	 m->cap->a, m->cap->h, m->cap->d);
+
 	cover_print(&m->cover);
-	printf("number of rings: %u\n", m->n_rings);
+	//printf("number of rings: %u\n", m->n_rings);
 	
 	for (i = 0; i < m->n_rings; i++) {
 		ring_print(&m->rings[i]);
-		printf("\n");
 	}
 }
 
@@ -448,7 +446,6 @@ void capsule_print_params(Capsule *c) {
 
 #ifdef DEBUG
 	assert(c != NULL);
-#endif
 
 	printf("Parâmetros da cápsula:\n");
 
@@ -473,6 +470,9 @@ void capsule_print_params(Capsule *c) {
 	printf("\n");
 
 	printf("steps = %u\n", c->steps);
+
+#endif
+
 }
 
 void capsule_init(Capsule *capsule) {
