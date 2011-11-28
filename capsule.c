@@ -139,7 +139,7 @@ unsigned int _ring_n_tiles(Ring *ring, double l) {
 }
 
 void ring_init(Ring *ring, Capsule *cap, double l, double L) {
-	unsigned int n_tiles;
+	int n_tiles;
 	double z0, z1, r0, r1;
 	double alpha0, alpha1, divd;
 	double beta0, beta1;
@@ -273,6 +273,10 @@ void ring_print(Ring *ring) {
 	}
 
 	fprintf(ring->capsule->file, "\n");
+}
+
+void ring_free(Ring *ring) {
+	free(ring->tiles);
 }
 
 // END [RING]
@@ -427,15 +431,19 @@ void mesh_step(Mesh *m) {
 	assert(m != NULL);
 #endif
 
+#ifndef DEBUG
 	#pragma omp parallel for default(none) \
 	 private(i) shared(m) num_threads(NUM_THREADS)
+#endif
 	for (i = 0; i < m->n_rings; i++) {
 		ring_calc_temp(&m->rings[i]);
 	}
 	cover_calc_temp(&m->cover);
 
+#ifndef DEBUG
 	#pragma omp parallel for default(none) \
 	 private(i) shared(m) num_threads(NUM_THREADS)
+#endif
 	for (i = 0; i < m->n_rings; i++) {
 		ring_update_temp(&m->rings[i]);
 	}
@@ -459,7 +467,12 @@ double mesh_media_temp(Mesh *m) {
 		for (j = 0; j < m->rings[i].n_tiles; j++) {
 			if (!m->rings[i].tiles[j].bursted) {
 				n_tls_not_busted++;
-				sum += m->rings[i].tiles[j].last_temp;	
+				sum += m->rings[i].tiles[j].last_temp;
+			}
+
+			if (j & 1) {
+				__builtin_prefetch(&m->rings[i].tiles[j+1], 0, 0);
+				__builtin_prefetch(&m->rings[i].tiles[j+2], 0, 0);
 			}
 		}
 	}
@@ -485,6 +498,19 @@ double mesh_media_rejunte(Mesh *m) {
 	}
 
 	return (sum / m->n_rings);
+}
+
+
+void mesh_free(Mesh *m) {
+	unsigned int i, n_rings;
+
+	n_rings = m->n_rings;
+
+	for (i=0; i<n_rings; i++) {
+		ring_free(&m->rings[i]);
+	}
+
+	free(m->rings);
 }
 
 // END [MESH]
@@ -608,4 +634,8 @@ void capsule_output(Capsule *capsule) {
 	mesh_print(&capsule->mesh);
 
 	fclose(capsule->file);
+}
+
+void capsule_free(Capsule *capsule) {
+	mesh_free(&capsule->mesh);
 }

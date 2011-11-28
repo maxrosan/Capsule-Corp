@@ -107,6 +107,7 @@ void ring_calc_temp(Ring *ring);
 void ring_neighborhood_temp(Ring *ring, double *t1, double *t2);
 void ring_print(Ring *ring);
 void ring_update_temp(Ring *ring);
+void ring_free(Ring *ring);
 
 // --------------*-------------
 // Calota
@@ -125,7 +126,7 @@ void mesh_init(Mesh *m, Capsule *cap);
 void mesh_print(Mesh *m);
 double mesh_media_temp(Mesh *m);
 double mesh_media_rejunte(Mesh *m);
-
+void mesh_free(Mesh *m);
 // --------------*-------------
 // Cápsula
 // --------------*-------------
@@ -137,5 +138,6 @@ void capsule_init(Capsule *capsule);
 void capsule_iterate(Capsule *capsule);
 // Imprime a saída
 void capsule_output(Capsule *capsule);
+void capsule_free(Capsule *capsule);
 
 #endif
