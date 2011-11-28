@@ -427,7 +427,7 @@ void mesh_print(Mesh *m) {
 }
 
 void mesh_step(Mesh *m) {
-#define NUM_UNROLL_STEPS 4
+#define NUM_UNROLL_STEPS 8
 	unsigned int i, n_unroll;
 	
 #ifdef DEBUG
@@ -453,15 +453,34 @@ void mesh_step(Mesh *m) {
 		ring_calc_temp(&m->rings[i+1]);
 		ring_calc_temp(&m->rings[i+2]);
 		ring_calc_temp(&m->rings[i+3]);
+		ring_calc_temp(&m->rings[i+4]);
+		ring_calc_temp(&m->rings[i+5]);
+		ring_calc_temp(&m->rings[i+6]);
+		ring_calc_temp(&m->rings[i+7]);
 	}
 	cover_calc_temp(&m->cover);
 
 #ifndef DEBUG
 	#pragma omp parallel for default(none) \
-	 private(i) shared(m) num_threads(NUM_THREADS)
+	 private(i) shared(m,n_unroll) num_threads(NUM_THREADS)
 #endif
-	for (i = 0; i < m->n_rings; i++) {
+	for (i = 0; i < n_unroll; i++) {
 		ring_update_temp(&m->rings[i]);
+	}
+
+#ifndef DEBUG
+	#pragma omp parallel for default(none) \
+	 private(i) shared(m, n_unroll) num_threads(NUM_THREADS)
+#endif
+	for (i = n_unroll; i < m->n_rings; i += NUM_UNROLL_STEPS) {
+		ring_update_temp(&m->rings[i]);
+		ring_update_temp(&m->rings[i+1]);
+		ring_update_temp(&m->rings[i+2]);
+		ring_update_temp(&m->rings[i+3]);
+		ring_update_temp(&m->rings[i+4]);
+		ring_update_temp(&m->rings[i+5]);
+		ring_update_temp(&m->rings[i+6]);
+		ring_update_temp(&m->rings[i+7]);
 	}
 	cover_update_temp(&m->cover);
 }
