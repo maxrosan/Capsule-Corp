@@ -35,6 +35,8 @@ entre esses vetores, não alterando, assim, resultado dos cálculos.
 A cada passo, calculamos a nova temperatura de cada pastilha, considerando
 como temperatura dos vizinhos a temperatura do passo anterior das mesmas.
 
+
+
 ----------------------
 Entradas do Programa
 ----------------------

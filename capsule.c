@@ -427,7 +427,7 @@ void mesh_print(Mesh *m) {
 }
 
 void mesh_step(Mesh *m) {
-#define NUM_UNROLL_STEPS 8
+#define NUM_UNROLL_STEPS 4
 	unsigned int i, n_unroll;
 	
 #ifdef DEBUG
@@ -453,10 +453,6 @@ void mesh_step(Mesh *m) {
 		ring_calc_temp(&m->rings[i+1]);
 		ring_calc_temp(&m->rings[i+2]);
 		ring_calc_temp(&m->rings[i+3]);
-		ring_calc_temp(&m->rings[i+4]);
-		ring_calc_temp(&m->rings[i+5]);
-		ring_calc_temp(&m->rings[i+6]);
-		ring_calc_temp(&m->rings[i+7]);
 	}
 	cover_calc_temp(&m->cover);
 
@@ -477,10 +473,6 @@ void mesh_step(Mesh *m) {
 		ring_update_temp(&m->rings[i+1]);
 		ring_update_temp(&m->rings[i+2]);
 		ring_update_temp(&m->rings[i+3]);
-		ring_update_temp(&m->rings[i+4]);
-		ring_update_temp(&m->rings[i+5]);
-		ring_update_temp(&m->rings[i+6]);
-		ring_update_temp(&m->rings[i+7]);
 	}
 	cover_update_temp(&m->cover);
 }
