@@ -34,10 +34,12 @@ void tile_init(Tile *t, Capsule *cap, v3d *a, v3d *b, v3d *c, v3d *d, Ring *ring
 	t->d = cap->d;
 	t->bursted = 0;
 
+#if 0
 	v3d_copy(&t->edges[0], a);
 	v3d_copy(&t->edges[1], b);
 	v3d_copy(&t->edges[2], c);
 	v3d_copy(&t->edges[3], d);
+#endif
 
 	t->ring = ring;
 
@@ -425,18 +427,32 @@ void mesh_print(Mesh *m) {
 }
 
 void mesh_step(Mesh *m) {
-	unsigned int i;
+#define NUM_UNROLL_STEPS 4
+	unsigned int i, n_unroll;
 	
 #ifdef DEBUG
 	assert(m != NULL);
 #endif
 
+	n_unroll = m->n_rings % NUM_UNROLL_STEPS;
+
 #ifndef DEBUG
 	#pragma omp parallel for default(none) \
-	 private(i) shared(m) num_threads(NUM_THREADS)
+	 private(i) shared(m,n_unroll) num_threads(NUM_THREADS)
 #endif
-	for (i = 0; i < m->n_rings; i++) {
+	for (i = 0; i < n_unroll; i++) {
 		ring_calc_temp(&m->rings[i]);
+	}
+
+#ifndef DEBUG
+	#pragma omp parallel for default(none) \
+	 private(i) shared(m,n_unroll) num_threads(NUM_THREADS)
+#endif
+	for (i = n_unroll; i < m->n_rings; i += NUM_UNROLL_STEPS) {
+		ring_calc_temp(&m->rings[i]);
+		ring_calc_temp(&m->rings[i+1]);
+		ring_calc_temp(&m->rings[i+2]);
+		ring_calc_temp(&m->rings[i+3]);
 	}
 	cover_calc_temp(&m->cover);
 
@@ -470,10 +486,12 @@ double mesh_media_temp(Mesh *m) {
 				sum += m->rings[i].tiles[j].last_temp;
 			}
 
+#ifdef ARCH_HAS_PREFETCH
 			if (j & 1) {
 				__builtin_prefetch(&m->rings[i].tiles[j+1], 0, 0);
 				__builtin_prefetch(&m->rings[i].tiles[j+2], 0, 0);
 			}
+#endif
 		}
 	}
 

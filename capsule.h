@@ -24,7 +24,9 @@ typedef struct STile {
 
 	struct SRing *ring;     // anel em que a pastilha está
 
+#if 0
 	v3d    edges[4];
+#endif
 
 	struct STile *left, *right;     // pastilhas ao lado
 
