@@ -32,10 +32,17 @@ rotacionamos os vetores posição e velocidade de modo "síncrono",fazendo com que 
 vetor posição aponte para baixo (<0, 0, z>, z<0) e mantendo a posição relativa
 entre esses vetores, não alterando, assim, resultado dos cálculos.
 
-A cada passo, calculamos a nova temperatura de cada pastilha, considerando
-como temperatura dos vizinhos a temperatura do passo anterior das mesmas.
-
-
+Cada passo da simulação foi dividido em duas partes: cálculo da temperatura e 
+atualização da temperatura. O cálculo da temperatura de cada pastilha é 
+realizado com base nos valores obtidos no passo anterior, o novo valor encontrado
+não será utilizado nos cálculos da temperatura das pastilhas vizinhas. Na
+segunda parte, a atualização da temperatura, o valor encontrado na parte descrita
+anteriormente é definido como valor corrente da temperatura para então ser utilizado
+no próximo passo. Então cada passo da simulação pode ser dividido em dois laços: o
+loop para cálculo da temperatura e o para atualização dos valores. Como o cálculo
+da temperatura da pastilha só usa valores do passo anterior, é possível paralelizar
+as iterações; assim, além da paralelização realizada nesses laços, também foi realizado
+unrolling.
 
 ----------------------
 Entradas do Programa
